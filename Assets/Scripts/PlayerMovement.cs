@@ -9,8 +9,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _jumpHeight = 1.5f;
     [SerializeField] private float _jumpDistance = 4.0f;
 
-    private float _speed = 5.0f;
-    private float _jumpVelocity = 1f;
+    [SerializeField] private float _speed = 5.0f;
+    [SerializeField] private float _jumpVelocity = 7f;
     private float deceleration = 5.0f;
     private Rigidbody2D _player;
 
@@ -53,9 +53,20 @@ public class PlayerMovement : MonoBehaviour
             _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
 
         _player.velocity = new Vector2(Mathf.Lerp(_player.velocity.x, 0, deceleration * Time.deltaTime), _player.velocity.y);
+
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+        {
+            GetComponentInChildren<Animator>().SetBool("Running", true);
+        }
+        else
+        {
+            GetComponentInChildren<Animator>().SetBool("Running", false);
+        }
+        
     }
 
     private void CalculateMovementParameters() {
+        //Time.fix
         _jumpGravity = (2 * _jumpHeight) / Mathf.Pow(_jumpPeakTime, 2);
         _fallGravity = (2 * _jumpHeight) / Mathf.Pow(_jumpFallTime, 2);
         _jumpVelocity = _jumpGravity * _jumpPeakTime;
