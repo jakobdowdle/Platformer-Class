@@ -41,11 +41,15 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        if (Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.A)) { 
             _player.velocity = new Vector2(-1 * _speed, _player.velocity.y);
-        if (Input.GetKey(KeyCode.D))
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+        if (Input.GetKey(KeyCode.D)) { 
             _player.velocity = new Vector2(1 * _speed, _player.velocity.y);
-        if ((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.Space)) && IsOnFloor())
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+        if (Input.GetKey(KeyCode.Space) && IsOnFloor())
             _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
 
         _player.velocity = new Vector2(Mathf.Lerp(_player.velocity.x, 0, deceleration * Time.deltaTime), _player.velocity.y);
