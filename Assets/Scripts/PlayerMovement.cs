@@ -49,20 +49,33 @@ public class PlayerMovement : MonoBehaviour
             _player.velocity = new Vector2(1 * _speed, _player.velocity.y);
             transform.localScale = new Vector3(1, 1, 1);
         }
-        if (Input.GetKey(KeyCode.Space) && IsOnFloor())
-            _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
+
 
         _player.velocity = new Vector2(Mathf.Lerp(_player.velocity.x, 0, deceleration * Time.deltaTime), _player.velocity.y);
 
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
-        {
-            GetComponentInChildren<Animator>().SetBool("Running", true);
-        }
-        else
+        if (!IsOnFloor())
         {
             GetComponentInChildren<Animator>().SetBool("Running", false);
         }
-        
+
+        if (IsOnFloor()) {
+            GetComponentInChildren<Animator>().SetBool("Jumping", false);
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+            {
+                GetComponentInChildren<Animator>().SetBool("Running", true);
+            }
+            else
+            {
+                GetComponentInChildren<Animator>().SetBool("Running", false);
+            }
+        }
+        if (Input.GetKey(KeyCode.Space) && IsOnFloor())
+        {
+            _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
+            GetComponentInChildren<Animator>().SetBool("Jumping", true);
+            GetComponentInChildren<Animator>().SetBool("Running", false);
+        }
+
     }
 
     private void CalculateMovementParameters() {
