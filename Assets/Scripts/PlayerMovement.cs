@@ -9,7 +9,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _jumpHeight = 1.5f;
     [SerializeField] private float _jumpDistance = 4.0f;
 
-    [SerializeField] private float _speed = 5.0f;
+    [SerializeField] private float _speed = 4.0f;
     [SerializeField] private float _jumpVelocity = 7f;
     private float deceleration = 5.0f;
     private Rigidbody2D _player;
@@ -27,18 +27,18 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private void Awake() {
-        CalculateMovementParameters();
+        //CalculateMovementParameters();
     }
 
     // Update is called once per frame
     void Update()
     {
         if (IsOnFloor()) {
-            if (_player.velocity.y > 0) {
-                _player.velocity -= new Vector2(0, _jumpGravity * Time.deltaTime);
-            } else {
-                _player.velocity -= new Vector2(0, _fallGravity * Time.deltaTime);
-            }
+            //if (_player.velocity.y > 0) {
+            //    _player.velocity -= new Vector2(0, _jumpGravity * Time.deltaTime);
+            //} else {
+            //    _player.velocity -= new Vector2(0, _fallGravity * Time.deltaTime);
+            //}
         }
 
         if (Input.GetKey(KeyCode.A)) { 

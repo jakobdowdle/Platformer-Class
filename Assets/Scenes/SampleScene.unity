@@ -2778,7 +2778,7 @@ MonoBehaviour:
   _jumpFallTime: 0.5
   _jumpHeight: 1.5
   _jumpDistance: 4
-  _speed: 5
+  _speed: 4
   _jumpVelocity: 7
 --- !u!1 &1624073180
 GameObject:
