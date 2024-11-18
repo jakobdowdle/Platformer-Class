@@ -4,11 +4,6 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float _jumpPeakTime = .5f;
-    [SerializeField] private float _jumpFallTime = .5f;
-    [SerializeField] private float _jumpHeight = 1.5f;
-    [SerializeField] private float _jumpDistance = 4.0f;
-
     [SerializeField] private float _speed = 4.0f;
     [SerializeField] private float _jumpVelocity = 7f;
     private float deceleration = 5.0f;
@@ -17,8 +12,10 @@ public class PlayerMovement : MonoBehaviour
     private float _jumpGravity = Physics.gravity.y;
     private float _fallGravity;
 
-    private float groundCheckDistance = 0.01f;
+    private float groundCheckDistance = 0.1f;
     private LayerMask groundLayer;
+
+    private bool _canDoubleJump;
 
     // Start is called before the first frame update
     void Start()
@@ -26,20 +23,10 @@ public class PlayerMovement : MonoBehaviour
         _player = GetComponent<Rigidbody2D>();
     }
 
-    private void Awake() {
-        //CalculateMovementParameters();
-    }
 
     // Update is called once per frame
     void Update()
     {
-        if (IsOnFloor()) {
-            //if (_player.velocity.y > 0) {
-            //    _player.velocity -= new Vector2(0, _jumpGravity * Time.deltaTime);
-            //} else {
-            //    _player.velocity -= new Vector2(0, _fallGravity * Time.deltaTime);
-            //}
-        }
 
         if (Input.GetKey(KeyCode.A)) { 
             _player.velocity = new Vector2(-1 * _speed, _player.velocity.y);
@@ -59,7 +46,9 @@ public class PlayerMovement : MonoBehaviour
         }
 
         if (IsOnFloor()) {
+            _canDoubleJump = false;
             GetComponentInChildren<Animator>().SetBool("Jumping", false);
+            GetComponentInChildren<Animator>().SetBool("Falling", false);
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
             {
                 GetComponentInChildren<Animator>().SetBool("Running", true);
@@ -69,25 +58,44 @@ public class PlayerMovement : MonoBehaviour
                 GetComponentInChildren<Animator>().SetBool("Running", false);
             }
         }
-        if (Input.GetKey(KeyCode.Space) && IsOnFloor())
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
+            if (!_canDoubleJump && IsOnFloor())
+            {
+                _canDoubleJump = true;
+                _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
+            }
+            if (_canDoubleJump && !IsOnFloor())
+            {
+                _canDoubleJump = false;
+                _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
+            }
+        }
+
+        if (_player.velocity.y > 0)
+        {
             GetComponentInChildren<Animator>().SetBool("Jumping", true);
             GetComponentInChildren<Animator>().SetBool("Running", false);
+        }
+        if ((_player.velocity.y <= 0) && !IsOnFloor())
+        {
+            GetComponentInChildren<Animator>().SetBool("Jumping", false);
+            GetComponentInChildren<Animator>().SetBool("Running", false);
+            GetComponentInChildren<Animator>().SetBool("Falling", true);
         }
 
     }
 
-    private void CalculateMovementParameters() {
-        //Time.fix
-        _jumpGravity = (2 * _jumpHeight) / Mathf.Pow(_jumpPeakTime, 2);
-        _fallGravity = (2 * _jumpHeight) / Mathf.Pow(_jumpFallTime, 2);
-        _jumpVelocity = _jumpGravity * _jumpPeakTime;
-        _speed = _jumpDistance / (_jumpPeakTime + _jumpFallTime);
-    }
 
     private bool IsOnFloor() {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance);
-        return hit.collider != null; 
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+
+        // Check if the player is falling (downward velocity) and on the ground
+        bool isFalling = rb.velocity.y <= 0f; // Player is falling or stationary
+
+        // Check if the player is touching the ground
+        bool isTouchingGround = GetComponent<Collider2D>().IsTouchingLayers(LayerMask.GetMask("Ground"));
+
+        return isFalling && isTouchingGround;
     }
 }
