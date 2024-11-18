@@ -9,93 +9,65 @@ public class PlayerMovement : MonoBehaviour
     private float deceleration = 5.0f;
     private Rigidbody2D _player;
 
-    private float _jumpGravity = Physics.gravity.y;
-    private float _fallGravity;
-
-    private float groundCheckDistance = 0.1f;
-    private LayerMask groundLayer;
-
     private bool _canDoubleJump;
 
-    // Start is called before the first frame update
-    void Start()
-    {
+    void Start() {
         _player = GetComponent<Rigidbody2D>();
     }
 
+    void Update() {
+        HandleMovement();
+        HandleJump();
+        UpdateAnimations();
+    }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-        if (Input.GetKey(KeyCode.A)) { 
-            _player.velocity = new Vector2(-1 * _speed, _player.velocity.y);
+    private void HandleMovement() {
+        if (Input.GetKey(KeyCode.A)) {
+            _player.velocity = new Vector2(-_speed, _player.velocity.y);
             transform.localScale = new Vector3(-1, 1, 1);
-        }
-        if (Input.GetKey(KeyCode.D)) { 
-            _player.velocity = new Vector2(1 * _speed, _player.velocity.y);
+        } else if (Input.GetKey(KeyCode.D)) {
+            _player.velocity = new Vector2(_speed, _player.velocity.y);
             transform.localScale = new Vector3(1, 1, 1);
+        } else {
+            // Smoothly decelerate when no key is pressed
+            _player.velocity = new Vector2(Mathf.Lerp(_player.velocity.x, 0, deceleration * Time.deltaTime), _player.velocity.y);
         }
+    }
 
-
-        _player.velocity = new Vector2(Mathf.Lerp(_player.velocity.x, 0, deceleration * Time.deltaTime), _player.velocity.y);
-
-        if (!IsOnFloor())
-        {
-            GetComponentInChildren<Animator>().SetBool("Running", false);
-        }
-
+    private void HandleJump() {
         if (IsOnFloor()) {
-            _canDoubleJump = false;
-            GetComponentInChildren<Animator>().SetBool("Jumping", false);
-            GetComponentInChildren<Animator>().SetBool("Falling", false);
-            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
-            {
-                GetComponentInChildren<Animator>().SetBool("Running", true);
-            }
-            else
-            {
-                GetComponentInChildren<Animator>().SetBool("Running", false);
-            }
+            _canDoubleJump = true; // Reset double jump
         }
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (!_canDoubleJump && IsOnFloor())
-            {
-                _canDoubleJump = true;
+
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            if (IsOnFloor()) {
+                // First jump
                 _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
-            }
-            if (_canDoubleJump && !IsOnFloor())
-            {
+            } else if (_canDoubleJump) {
+                // Double jump
                 _canDoubleJump = false;
                 _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
             }
         }
+    }
 
-        if (_player.velocity.y > 0)
-        {
-            GetComponentInChildren<Animator>().SetBool("Jumping", true);
-            GetComponentInChildren<Animator>().SetBool("Running", false);
-        }
-        if ((_player.velocity.y <= 0) && !IsOnFloor())
-        {
-            GetComponentInChildren<Animator>().SetBool("Jumping", false);
-            GetComponentInChildren<Animator>().SetBool("Running", false);
-            GetComponentInChildren<Animator>().SetBool("Falling", true);
-        }
+    private void UpdateAnimations() {
+        Animator animator = GetComponentInChildren<Animator>();
 
+        if (IsOnFloor()) {
+            animator.SetBool("Jumping", false);
+            animator.SetBool("Falling", false);
+            animator.SetBool("Running", Mathf.Abs(_player.velocity.x) > 0.1f);
+        } else {
+            animator.SetBool("Running", false);
+            animator.SetBool("Jumping", _player.velocity.y > 0);
+            animator.SetBool("Falling", _player.velocity.y <= 0);
+        }
     }
 
 
     private bool IsOnFloor() {
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
-
-        // Check if the player is falling (downward velocity) and on the ground
-        bool isFalling = rb.velocity.y <= 0f; // Player is falling or stationary
-
-        // Check if the player is touching the ground
-        bool isTouchingGround = GetComponent<Collider2D>().IsTouchingLayers(LayerMask.GetMask("Ground"));
-
-        return isFalling && isTouchingGround;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, .01f);
+        return hit.collider != null;
     }
 }
