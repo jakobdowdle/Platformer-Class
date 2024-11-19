@@ -1,16 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.CompilerServices;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
-{
+public class PlayerMovement : MonoBehaviour {
     [SerializeField] private float _speed = 4.0f;
     [SerializeField] private float _jumpVelocity = 7f;
+    [SerializeField] private float _wallSlideSpeed = 2f; // Speed while sliding
     private float deceleration = 5.0f;
     private Rigidbody2D _player;
 
     private bool _canDoubleJump;
     private bool _doubleJumping;
+    private bool _isWallSliding;
 
     void Start() {
         _player = GetComponent<Rigidbody2D>();
@@ -19,7 +21,9 @@ public class PlayerMovement : MonoBehaviour
     void Update() {
         HandleMovement();
         HandleJump();
+        HandleWallSlide();
         UpdateAnimations();
+        Debug.Log("Floor " + IsOnFloor());
     }
 
     private void HandleMovement() {
@@ -42,15 +46,29 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space)) {
             if (IsOnFloor()) {
-                // First jump
                 _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
                 _doubleJumping = false;
-            } else if (_canDoubleJump) {
-                // Double jump
+            } else if (_isWallSliding) {
+                _player.velocity = new Vector2(-Mathf.Sign(transform.localScale.x) * _speed, _jumpVelocity);
+                _isWallSliding = false;
+                _doubleJumping = true;
+                _canDoubleJump = false;
+            } if (_canDoubleJump) {
                 _doubleJumping = true;
                 _canDoubleJump = false;
                 _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
             }
+        }
+    }
+
+    private void HandleWallSlide() {
+        _isWallSliding = IsTouchingWall() && !IsOnFloor() && _player.velocity.y < 0;
+
+        Animator animator = GetComponentInChildren<Animator>();
+        animator.SetBool("WallSliding", _isWallSliding);
+
+        if (_isWallSliding) {
+            _player.velocity = new Vector2(_player.velocity.x, Mathf.Max(_player.velocity.y, -_wallSlideSpeed));
         }
     }
 
@@ -62,24 +80,47 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("DoubleJumping", false);
             animator.SetBool("Falling", false);
             animator.SetBool("Running", Mathf.Abs(_player.velocity.x) > 0.1f);
+            animator.SetBool("WallSliding", false);
         } else {
             animator.SetBool("Running", false);
 
-            if (_player.velocity.y > 0) {
-                animator.SetBool("Falling", false);
-                animator.SetBool("DoubleJumping", _doubleJumping);
-                animator.SetBool("Jumping", !_doubleJumping);
-            } else if (_player.velocity.y <= 0) {
+            if (_isWallSliding) {
+                animator.SetBool("WallSliding", true);
                 animator.SetBool("Jumping", false);
                 animator.SetBool("DoubleJumping", false);
-                animator.SetBool("Falling", true);
+                animator.SetBool("Falling", false);
+            } else {
+                animator.SetBool("WallSliding", false);
+
+                if (_player.velocity.y > 0) {
+                    animator.SetBool("Falling", false);
+                    animator.SetBool("DoubleJumping", _doubleJumping);
+                    animator.SetBool("Jumping", !_doubleJumping);
+                } else if (_player.velocity.y <= 0) {
+                    animator.SetBool("Jumping", false);
+                    animator.SetBool("DoubleJumping", false);
+                    animator.SetBool("Falling", true);
+                }
             }
         }
     }
 
-
     private bool IsOnFloor() {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, .01f);
+        Vector2 raycastOrigin = new Vector2(transform.position.x, transform.position.y + 0.17f);
+        RaycastHit2D hit = Physics2D.Raycast(raycastOrigin, Vector2.down, .01f);
         return hit.collider != null;
+    }
+
+    private bool IsTouchingWall() {
+        float wallCheckDistance = 0.3f;
+        Vector2 direction = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
+
+        Vector2 raycastOriginTop = new Vector2(transform.position.x, transform.position.y + 0.62f);
+        Vector2 raycastOriginBottom = new Vector2(transform.position.x, transform.position.y + 0.17f);
+
+        RaycastHit2D hitTop = Physics2D.Raycast(raycastOriginTop, direction, wallCheckDistance);
+        RaycastHit2D hitBottom = Physics2D.Raycast(raycastOriginBottom, direction, wallCheckDistance);
+
+        return hitTop.collider != null || hitBottom.collider != null;
     }
 }
