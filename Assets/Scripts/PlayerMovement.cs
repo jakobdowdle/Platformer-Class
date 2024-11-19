@@ -16,6 +16,9 @@ public class PlayerMovement : MonoBehaviour {
     private bool _doubleJumping;
     private bool _isWallSliding;
 
+    private bool _isDamaged = false;
+    [SerializeField] private float _damageAnimationDuration = 0.5f;  // How long the damage animation plays
+
     void Start() {
         _player = GetComponent<Rigidbody2D>();
     }
@@ -25,7 +28,30 @@ public class PlayerMovement : MonoBehaviour {
         HandleJump();
         HandleWallSlide();
         UpdateAnimations();
-        ApplyFallMultiplier();  
+        ApplyFallMultiplier();
+        HandleDamageState();
+    }
+
+    private void HandleDamageState() {
+        if (_isDamaged) {
+            StartCoroutine(PlayDamageSequence());
+            _isDamaged = false;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other) {
+        if (other.CompareTag("Hazard") && !_isDamaged) {
+            _isDamaged = true;
+        }
+    }
+
+    private IEnumerator PlayDamageSequence() {
+        Animator animator = GetComponentInChildren<Animator>();
+        animator.SetBool("IsDamaged", true);
+
+        yield return new WaitForSeconds(_damageAnimationDuration);
+
+        animator.SetBool("IsDamaged", false);
     }
 
     private void ApplyFallMultiplier() {
@@ -85,6 +111,12 @@ public class PlayerMovement : MonoBehaviour {
 
     private void UpdateAnimations() {
         Animator animator = GetComponentInChildren<Animator>();
+
+        if (_isDamaged) {
+            animator.SetBool("IsDamaged", true);
+            return; 
+        }
+        animator.SetBool("IsDamaged", false);
 
         if (IsOnFloor()) {
             animator.SetBool("Jumping", false);

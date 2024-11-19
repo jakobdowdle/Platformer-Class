@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerBehaviour : MonoBehaviour
 {
     public static PlayerBehaviour Instance;
-    public Animator SpriteAnimator, EffectsAnimator;
+    //public Animator SpriteAnimator, EffectsAnimator;
     private bool _isDead;
 
     // Start is called before the first frame update
