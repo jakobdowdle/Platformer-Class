@@ -10,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D _player;
 
     private bool _canDoubleJump;
+    private bool _doubleJumping;
 
     void Start() {
         _player = GetComponent<Rigidbody2D>();
@@ -29,22 +30,24 @@ public class PlayerMovement : MonoBehaviour
             _player.velocity = new Vector2(_speed, _player.velocity.y);
             transform.localScale = new Vector3(1, 1, 1);
         } else {
-            // Smoothly decelerate when no key is pressed
             _player.velocity = new Vector2(Mathf.Lerp(_player.velocity.x, 0, deceleration * Time.deltaTime), _player.velocity.y);
         }
     }
 
     private void HandleJump() {
         if (IsOnFloor()) {
-            _canDoubleJump = true; // Reset double jump
+            _canDoubleJump = true;
+            _doubleJumping = false;
         }
 
         if (Input.GetKeyDown(KeyCode.Space)) {
             if (IsOnFloor()) {
                 // First jump
                 _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
+                _doubleJumping = false;
             } else if (_canDoubleJump) {
                 // Double jump
+                _doubleJumping = true;
                 _canDoubleJump = false;
                 _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
             }
@@ -56,12 +59,21 @@ public class PlayerMovement : MonoBehaviour
 
         if (IsOnFloor()) {
             animator.SetBool("Jumping", false);
+            animator.SetBool("DoubleJumping", false);
             animator.SetBool("Falling", false);
             animator.SetBool("Running", Mathf.Abs(_player.velocity.x) > 0.1f);
         } else {
             animator.SetBool("Running", false);
-            animator.SetBool("Jumping", _player.velocity.y > 0);
-            animator.SetBool("Falling", _player.velocity.y <= 0);
+
+            if (_player.velocity.y > 0) {
+                animator.SetBool("Falling", false);
+                animator.SetBool("DoubleJumping", _doubleJumping);
+                animator.SetBool("Jumping", !_doubleJumping);
+            } else if (_player.velocity.y <= 0) {
+                animator.SetBool("Jumping", false);
+                animator.SetBool("DoubleJumping", false);
+                animator.SetBool("Falling", true);
+            }
         }
     }
 
