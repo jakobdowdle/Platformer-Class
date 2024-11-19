@@ -6,7 +6,9 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour {
     [SerializeField] private float _speed = 4.0f;
     [SerializeField] private float _jumpVelocity = 7f;
-    [SerializeField] private float _wallSlideSpeed = 2f; // Speed while sliding
+    [SerializeField] private float _wallSlideSpeed = 2f; 
+    [SerializeField] private float _fallMultiplier = 2.5f;    
+    [SerializeField] private float _lowJumpMultiplier = 2f;   
     private float deceleration = 5.0f;
     private Rigidbody2D _player;
 
@@ -23,7 +25,16 @@ public class PlayerMovement : MonoBehaviour {
         HandleJump();
         HandleWallSlide();
         UpdateAnimations();
-        Debug.Log("Floor " + IsOnFloor());
+        ApplyFallMultiplier();  
+    }
+
+    private void ApplyFallMultiplier() {
+        if (_player.velocity.y < 0) {
+            _player.velocity += Vector2.up * Physics2D.gravity.y * (_fallMultiplier - 1) * Time.deltaTime;
+        }
+        else if (_player.velocity.y > 0 && !Input.GetKey(KeyCode.Space)) {
+            _player.velocity += Vector2.up * Physics2D.gravity.y * (_lowJumpMultiplier - 1) * Time.deltaTime;
+        }
     }
 
     private void HandleMovement() {
