@@ -24,18 +24,17 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void Update() {
+        HandleDamageState();
         HandleMovement();
         HandleJump();
         HandleWallSlide();
         UpdateAnimations();
         ApplyFallMultiplier();
-        HandleDamageState();
     }
 
     private void HandleDamageState() {
         if (_isDamaged) {
             StartCoroutine(PlayDamageSequence());
-            _isDamaged = false;
         }
     }
 
@@ -49,10 +48,19 @@ public class PlayerMovement : MonoBehaviour {
         Animator animator = GetComponentInChildren<Animator>();
         animator.SetBool("IsDamaged", true);
 
-        yield return new WaitForSeconds(_damageAnimationDuration);
+        animator.SetBool("Jumping", false);
+        animator.SetBool("DoubleJumping", false);
+        animator.SetBool("Falling", false);
+        animator.SetBool("Running", false);
+        animator.SetBool("WallSliding", false);
+
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        yield return new WaitForSeconds(stateInfo.length);
 
         animator.SetBool("IsDamaged", false);
+        _isDamaged = false;
     }
+
 
     private void ApplyFallMultiplier() {
         if (_player.velocity.y < 0) {
@@ -112,11 +120,7 @@ public class PlayerMovement : MonoBehaviour {
     private void UpdateAnimations() {
         Animator animator = GetComponentInChildren<Animator>();
 
-        if (_isDamaged) {
-            animator.SetBool("IsDamaged", true);
-            return; 
-        }
-        animator.SetBool("IsDamaged", false);
+        if (_isDamaged) return;
 
         if (IsOnFloor()) {
             animator.SetBool("Jumping", false);

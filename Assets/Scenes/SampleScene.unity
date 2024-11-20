@@ -2721,6 +2721,10 @@ PrefabInstance:
       propertyPath: m_CollisionDetection
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7079623566457906946, guid: 17c91fadd23821b4bb7c2e33a5515a90, type: 3}
+      propertyPath: _damageAnimationDuration
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 7079623566457906947, guid: 17c91fadd23821b4bb7c2e33a5515a90, type: 3}
       propertyPath: m_RootOrder
       value: 2
