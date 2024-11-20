@@ -40,4 +40,18 @@ public class PlayerBehaviour : MonoBehaviour {
         GameManager.Instance.GameRunning = true;
 
     }
+
+    public void Die() {
+        _fruitsCollected -= GameManager.Instance.GetCollectedFruit();
+        _totalFruitsEncountered -= GameManager.Instance.GetTotalLevelFruits();
+        SceneController.Instance.Restart();
+    }
+
+    public int SendCollectedTotal() {
+        return _fruitsCollected;
+    }
+
+    public int SendEncounteredTotal() {
+        return _totalFruitsEncountered;
+    }
 }

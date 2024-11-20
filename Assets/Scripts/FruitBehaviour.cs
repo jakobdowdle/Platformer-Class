@@ -4,15 +4,21 @@ using UnityEngine;
 
 public class FruitBehaviour : MonoBehaviour {
     private Animator animator;
+    private Collider2D fruitCollider;
 
     private void Start() {
         animator = GetComponentInChildren<Animator>();
+        fruitCollider = GetComponent<Collider2D>();
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("Player")) {
             animator.SetBool("Despawn", true);
             StartCoroutine(WaitForDespawnAnimation());
+
+            if (fruitCollider != null) {
+                fruitCollider.enabled = false;
+            }
         }
     }
 

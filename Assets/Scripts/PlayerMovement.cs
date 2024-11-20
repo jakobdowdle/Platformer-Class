@@ -43,8 +43,7 @@ public class PlayerMovement : MonoBehaviour {
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("Hazard") && !_isDamaged) {
             _isDamaged = true;
-            SceneController.Instance.Restart();
-
+            PlayerBehaviour.Instance.Die();
         }
     }
 

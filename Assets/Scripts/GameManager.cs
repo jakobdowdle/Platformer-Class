@@ -5,6 +5,7 @@ public class GameManager : MonoBehaviour {
     [HideInInspector] public bool GameRunning;
     [SerializeField] private GameObject _fruits;
     [SerializeField] private TextMeshProUGUI _collectionVisual;
+    [SerializeField] private TextMeshProUGUI _totalVisual;
     private int _levelFruitCount;
     private int _collectedFruitCount;
     public static GameManager Instance;
@@ -21,14 +22,21 @@ public class GameManager : MonoBehaviour {
         // Initialize the game state
         GameRunning = true;
 
-        _collectedFruitCount = 0;
-        _levelFruitCount = CountLevelFruits();
-        PlayerBehaviour.Instance.LevelStart(_levelFruitCount);
-        Debug.Log("Number of fruits: " + _levelFruitCount);
+        if (_fruits != null) {
+            _collectedFruitCount = 0;
+            _levelFruitCount = CountLevelFruits();
+            PlayerBehaviour.Instance.LevelStart(_levelFruitCount);
+        }
+
+        if (_totalVisual != null) {
+            _totalVisual.text = PlayerBehaviour.Instance.SendCollectedTotal() + "/" + PlayerBehaviour.Instance.SendEncounteredTotal();
+        }
     }
 
     private void Update() {
-        SetFruitUI();
+        if (_collectionVisual != null) {
+            SetFruitUI();
+        }
     }
 
     public void EndGame() {
@@ -37,7 +45,7 @@ public class GameManager : MonoBehaviour {
     }
 
     // Method to count the number of child objects (fruits)
-    private int CountLevelFruits() {
+    public int CountLevelFruits() {
         if (_fruits != null) {
             return _fruits.transform.childCount;
         } else {
@@ -48,6 +56,14 @@ public class GameManager : MonoBehaviour {
 
     public void SetFruitUI() {
         _collectionVisual.text = _collectedFruitCount + "/" + _levelFruitCount;
+    }
+
+    public int GetCollectedFruit() {
+        return _collectedFruitCount;
+    }
+
+    public int GetTotalLevelFruits() {
+        return _levelFruitCount;
     }
 
     public void IncreaseFruitCount() {
