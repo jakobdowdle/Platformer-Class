@@ -23,6 +23,10 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void Update() {
+        if (!GameManager.Instance.GameRunning) {
+            _player.velocity = Vector2.zero;
+            return;
+        }
         HandleDamageState();
         HandleMovement();
         HandleJump();

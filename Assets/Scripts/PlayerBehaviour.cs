@@ -2,26 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerBehaviour : MonoBehaviour
-{
+public class PlayerBehaviour : MonoBehaviour {
     public static PlayerBehaviour Instance;
-    //public Animator SpriteAnimator, EffectsAnimator;
+    public Transform playerTransform; // Reference to the player's transform
     private bool _isDead;
 
-    // Start is called before the first frame update
-    private void Awake()
-    {
+    private void Awake() {
         Instance = this;
-        DontDestroyOnLoad(this); //Important for scene transfer.
-    }
-    void Start()
-    {
-        
+        DontDestroyOnLoad(this); // Important for scene transfer
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    void Start() {
+        // Initialize the player or other necessary setups
+        playerTransform = transform; // Assuming this script is attached to the player
     }
+
+    // Coroutine to handle player respawning
+    public IEnumerator Spawn(Vector3 spawnLocation) {
+        playerTransform.position = spawnLocation;
+
+        yield return new WaitForSeconds(0.5f);
+        GameManager.Instance.GameRunning = true;
+
+    }
+
+    // Add any other logic for the player as needed
 }
