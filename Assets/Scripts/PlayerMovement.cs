@@ -17,7 +17,6 @@ public class PlayerMovement : MonoBehaviour {
     private bool _isWallSliding;
 
     private bool _isDamaged = false;
-    [SerializeField] private float _damageAnimationDuration = 0.5f;  // How long the damage animation plays
 
     void Start() {
         _player = GetComponent<Rigidbody2D>();

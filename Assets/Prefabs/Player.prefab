@@ -224,7 +224,7 @@ CapsuleCollider2D:
   m_GameObject: {fileID: 7079623566457907007}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 680ce191f0e8726469f835fcc188570f, type: 2}
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -243,9 +243,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e663c43e66b99e542840a9cbd0bc7449, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _jumpPeakTime: 0.5
-  _jumpFallTime: 0.5
-  _jumpHeight: 1.5
-  _jumpDistance: 4
   _speed: 4
   _jumpVelocity: 7
+  _wallSlideSpeed: 2
+  _fallMultiplier: 2.5
+  _lowJumpMultiplier: 2
