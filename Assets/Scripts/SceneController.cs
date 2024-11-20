@@ -11,6 +11,9 @@ public class SceneController : MonoBehaviour {
     [SerializeField] private GameObject _nextLevelUI;
     [SerializeField] private GameObject _nextLevelButton;
 
+    [SerializeField] GameObject audioVictoryPrefab;
+    private AudioSource instantiateVictorySound;
+
     private void Awake() {
         // Singleton pattern setup
         if (Instance == null) {
@@ -41,6 +44,10 @@ public class SceneController : MonoBehaviour {
         if (other.CompareTag("Player")) {
             // Stop the game and show the "Next Level" UI
             GameManager.Instance.GameRunning = false;
+            if (audioVictoryPrefab != null) {
+                instantiateVictorySound = Instantiate(audioVictoryPrefab).GetComponent<AudioSource>();
+                instantiateVictorySound.Play();
+            }
             ActivateNextLevelUI();
         }
     }

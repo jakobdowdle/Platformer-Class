@@ -10,6 +10,10 @@ public class GameManager : MonoBehaviour {
     private int _collectedFruitCount;
     public static GameManager Instance;
 
+    [SerializeField] GameObject audioSpawnPrefab;
+    private AudioSource instantiateSpawnSound;
+
+
     // Start is called before the first frame update
     void Start() {
         GameRunning = false;
@@ -17,6 +21,11 @@ public class GameManager : MonoBehaviour {
             Instance = this;
         } else {
             Destroy(gameObject);
+        }
+
+        if (audioSpawnPrefab != null) {
+            instantiateSpawnSound = Instantiate(audioSpawnPrefab).GetComponent<AudioSource>();
+            instantiateSpawnSound.Play();
         }
 
         // Initialize the game state

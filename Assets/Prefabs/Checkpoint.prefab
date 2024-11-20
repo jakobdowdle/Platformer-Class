@@ -125,9 +125,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1cf4ae61d2548144a7a740e5149eb61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SpawnPoint: {fileID: 0}
   _nextLevel: 
   _nextLevelUI: {fileID: 0}
   _nextLevelButton: {fileID: 0}
+  audioVictoryPrefab: {fileID: 2903548683422406512, guid: d535dfdc39fcf464eb55cfa4d0d50283, type: 3}
 --- !u!1 &1653499864726939209
 GameObject:
   m_ObjectHideFlags: 0

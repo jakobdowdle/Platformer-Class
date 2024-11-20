@@ -17,6 +17,10 @@ public class PlayerMovement : MonoBehaviour {
 
     private bool _isDamaged = false;
 
+    [SerializeField] GameObject audioJumpPrefab;
+    private AudioSource instantiateCollectSound;
+
+
     void Start() {
         _player = GetComponent<Rigidbody2D>();
     }
@@ -86,6 +90,13 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
+    private void PlayJumpSound() {
+        if (audioJumpPrefab != null) {
+            instantiateCollectSound = Instantiate(audioJumpPrefab).GetComponent<AudioSource>();
+            instantiateCollectSound.Play();
+        }
+    }
+
     private void HandleJump() {
         if (IsOnFloor()) {
             _canDoubleJump = true;
@@ -93,18 +104,22 @@ public class PlayerMovement : MonoBehaviour {
         }
 
         if (Input.GetKeyDown(KeyCode.Space)) {
+
             if (IsOnFloor()) {
                 _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
                 _doubleJumping = false;
+                PlayJumpSound();
             } else if (_isWallSliding) {
                 _player.velocity = new Vector2(-Mathf.Sign(transform.localScale.x) * _speed, _jumpVelocity);
                 _isWallSliding = false;
                 _doubleJumping = true;
                 _canDoubleJump = false;
+                PlayJumpSound();
             } else if (_canDoubleJump) {
                 _doubleJumping = true;
                 _canDoubleJump = false;
                 _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
+                PlayJumpSound();
             }
         }
     }

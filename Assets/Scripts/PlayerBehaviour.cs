@@ -9,6 +9,9 @@ public class PlayerBehaviour : MonoBehaviour {
     private int _fruitsCollected;
     private int _totalFruitsEncountered;
 
+    [SerializeField] GameObject audioCollectPrefab;
+    private AudioSource instantiateCollectSound;
+
     private void Awake() {
         Instance = this;
         DontDestroyOnLoad(this); // Important for scene transfer
@@ -29,6 +32,11 @@ public class PlayerBehaviour : MonoBehaviour {
         if (other.CompareTag("Fruit")) {
             _fruitsCollected += 1;
             GameManager.Instance.IncreaseFruitCount();
+
+            if (audioCollectPrefab != null) {
+                instantiateCollectSound = Instantiate(audioCollectPrefab).GetComponent<AudioSource>();
+                instantiateCollectSound.Play();
+            }
         }
     }
 

@@ -4464,6 +4464,8 @@ MonoBehaviour:
   GameRunning: 0
   _fruits: {fileID: 1169443884}
   _collectionVisual: {fileID: 1332446912}
+  _totalVisual: {fileID: 0}
+  audioSpawnPrefab: {fileID: 8834008023562112557, guid: 3a235cedbec5f7341b51d1688d1ba654, type: 3}
 --- !u!4 &1675842023
 Transform:
   m_ObjectHideFlags: 0
