@@ -1,7 +1,12 @@
 using UnityEngine;
+using TMPro;
 
 public class GameManager : MonoBehaviour {
     [HideInInspector] public bool GameRunning;
+    [SerializeField] private GameObject _fruits;
+    [SerializeField] private TextMeshProUGUI _collectionVisual;
+    private int _levelFruitCount;
+    private int _collectedFruitCount;
     public static GameManager Instance;
 
     // Start is called before the first frame update
@@ -15,16 +20,37 @@ public class GameManager : MonoBehaviour {
 
         // Initialize the game state
         GameRunning = true;
+
+        _collectedFruitCount = 0;
+        _levelFruitCount = CountLevelFruits();
+        PlayerBehaviour.Instance.LevelStart(_levelFruitCount);
+        Debug.Log("Number of fruits: " + _levelFruitCount);
     }
 
-    // Example of a method to restart the level or manage game state
-    public void RestartLevel() {
-        int currentSceneIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
-        UnityEngine.SceneManagement.SceneManager.LoadScene(currentSceneIndex);
+    private void Update() {
+        SetFruitUI();
     }
 
     public void EndGame() {
         GameRunning = false;
         Debug.Log("Game Over!");
+    }
+
+    // Method to count the number of child objects (fruits)
+    private int CountLevelFruits() {
+        if (_fruits != null) {
+            return _fruits.transform.childCount;
+        } else {
+            Debug.LogWarning("_fruits GameObject is not assigned!");
+            return 0;
+        }
+    }
+
+    public void SetFruitUI() {
+        _collectionVisual.text = _collectedFruitCount + "/" + _levelFruitCount;
+    }
+
+    public void IncreaseFruitCount() {
+        _collectedFruitCount++;
     }
 }

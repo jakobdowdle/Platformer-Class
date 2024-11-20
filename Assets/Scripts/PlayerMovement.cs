@@ -1,14 +1,13 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.Burst.CompilerServices;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour {
     [SerializeField] private float _speed = 4.0f;
     [SerializeField] private float _jumpVelocity = 7f;
-    [SerializeField] private float _wallSlideSpeed = 2f; 
-    [SerializeField] private float _fallMultiplier = 2.5f;    
-    [SerializeField] private float _lowJumpMultiplier = 2f;   
+    [SerializeField] private float _wallSlideSpeed = 2f;
+    [SerializeField] private float _fallMultiplier = 2.5f;
+    [SerializeField] private float _lowJumpMultiplier = 2f;
     private float deceleration = 5.0f;
     private Rigidbody2D _player;
 
@@ -44,6 +43,8 @@ public class PlayerMovement : MonoBehaviour {
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("Hazard") && !_isDamaged) {
             _isDamaged = true;
+            SceneController.Instance.Restart();
+
         }
     }
 
@@ -51,25 +52,25 @@ public class PlayerMovement : MonoBehaviour {
         Animator animator = GetComponentInChildren<Animator>();
         animator.SetBool("IsDamaged", true);
 
-        animator.SetBool("Jumping", false);
-        animator.SetBool("DoubleJumping", false);
-        animator.SetBool("Falling", false);
-        animator.SetBool("Running", false);
-        animator.SetBool("WallSliding", false);
+        ResetAnimator(animator); // Clear other animation states
+        yield return new WaitForSeconds(1f); // Wait for damage animation to play
 
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        yield return new WaitForSeconds(stateInfo.length);
-
-        animator.SetBool("IsDamaged", false);
         _isDamaged = false;
+        animator.SetBool("IsDamaged", false);
     }
 
+    private void ResetAnimator(Animator animator) {
+        foreach (AnimatorControllerParameter parameter in animator.parameters) {
+            if (parameter.type == AnimatorControllerParameterType.Bool) {
+                animator.SetBool(parameter.name, false);
+            }
+        }
+    }
 
     private void ApplyFallMultiplier() {
         if (_player.velocity.y < 0) {
             _player.velocity += Vector2.up * Physics2D.gravity.y * (_fallMultiplier - 1) * Time.deltaTime;
-        }
-        else if (_player.velocity.y > 0 && !Input.GetKey(KeyCode.Space)) {
+        } else if (_player.velocity.y > 0 && !Input.GetKey(KeyCode.Space)) {
             _player.velocity += Vector2.up * Physics2D.gravity.y * (_lowJumpMultiplier - 1) * Time.deltaTime;
         }
     }
@@ -101,7 +102,7 @@ public class PlayerMovement : MonoBehaviour {
                 _isWallSliding = false;
                 _doubleJumping = true;
                 _canDoubleJump = false;
-            } if (_canDoubleJump) {
+            } else if (_canDoubleJump) {
                 _doubleJumping = true;
                 _canDoubleJump = false;
                 _player.velocity = new Vector2(_player.velocity.x, _jumpVelocity);
